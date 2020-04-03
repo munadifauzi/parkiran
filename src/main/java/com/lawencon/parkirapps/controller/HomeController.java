@@ -25,7 +25,7 @@ import com.lawencon.parkirapps.service.VehicleService;
  */
 
 @RestController
-public class HomeController extends BaseController{
+public class HomeController extends BaseController {
 
 	@Autowired
 	VehicleService vhcService;
@@ -47,10 +47,12 @@ public class HomeController extends BaseController{
 	}
 
 	@GetMapping("home/user/show/")
-	public ResponseEntity<?> showUser(@RequestHeader String userName, @RequestHeader String password) {
+	public ResponseEntity<?> showUser(@RequestHeader String authorization) {
 		User user = new User();
 		try {
-			userService.findByUserNameAndPassword(userName, password);
+
+			String[] auth = super.auth(authorization);
+			userService.findByUserNameAndPassword(auth[0], auth[1]);
 		} catch (Exception e) {
 			e.getMessage();
 			return new ResponseEntity<>("gagal menampilkan: ", HttpStatus.BAD_REQUEST);
@@ -59,12 +61,12 @@ public class HomeController extends BaseController{
 	}
 
 	@PostMapping("home/vehicle/checkin")
-	public ResponseEntity<?> insertVehicle(@RequestBody String content, @RequestHeader String userName,
-			@RequestHeader String password) {
+	public ResponseEntity<?> insertVehicle(@RequestBody String content, @RequestHeader String authorization) {
 		Vehicle vhc = new Vehicle();
 		try {
+			String[] auth = super.auth(authorization);
 			vhc = new ObjectMapper().readValue(content, Vehicle.class);
-			vhcService.save(vhc, userName, password);
+			vhcService.save(vhc, auth[0], auth[1]);
 		} catch (Exception e) {
 			e.getMessage();
 			return new ResponseEntity<>("gagal checkin : ", HttpStatus.BAD_REQUEST);
@@ -96,10 +98,10 @@ public class HomeController extends BaseController{
 //	}
 
 	@DeleteMapping("home/vehicle/delete")
-	public ResponseEntity<?> deleteVehicle(@RequestParam Long id, @RequestHeader String userName,
-			@RequestHeader String password) {
+	public ResponseEntity<?> deleteVehicle(@RequestParam Long id, @RequestHeader String authorization) {
 		try {
-			vhcService.deleteById(id, userName, password);
+			String[] auth = super.auth(authorization);
+			vhcService.deleteById(id, auth[0], auth[1]);
 		} catch (Exception e) {
 			e.getMessage();
 			return new ResponseEntity<>("gagal", HttpStatus.BAD_REQUEST);
